@@ -17,9 +17,12 @@
    isAllTrue([100, 2, 3, 4, 5], n => n < 10) // вернет false
  */
 function isAllTrue(array, fn) {
-    if (getClass(array) !== 'Array' || array.length <= 0) {
+    let isArray = array instanceof Array;
+    let isFunction = fn instanceof Function;
+
+    if (!isArray || array.length <= 0) {
         throw new Error('empty array');
-    } else if (getClass(fn) !== 'Function') {
+    } else if (!isFunction) {
         throw new Error('fn is not a function');
     } else {
         let result = true;
@@ -32,10 +35,6 @@ function isAllTrue(array, fn) {
 
         return result;
     }
-}
-
-function getClass(obj) {
-    return {}.toString.call(obj).slice(8, -1);
 }
 
 /*
@@ -55,9 +54,12 @@ function getClass(obj) {
    isSomeTrue([1, 2, 3, 4, 5], n => n > 20) // вернет false
  */
 function isSomeTrue(array, fn) {
-    if (getClass(array) !== 'Array' || array.length <= 0) {
+    let isArray = array instanceof Array;
+    let isFunction = fn instanceof Function;
+
+    if (!isArray || array.length <= 0) {
         throw new Error('empty array');
-    } else if (getClass(fn) !== 'Function') {
+    } else if (!isFunction) {
         throw new Error('fn is not a function');
     } else {
         let result = false;
@@ -84,7 +86,9 @@ function isSomeTrue(array, fn) {
    - fn не является функцией (с текстом "fn is not a function")
  */
 function returnBadArguments(fn, ...args) {
-    if (getClass(fn) !== 'Function') {
+    let isFunction = fn instanceof Function;
+
+    if (!isFunction) {
         throw new Error('fn is not a function');
     } else {
         let resultArray = [];
@@ -120,8 +124,9 @@ function returnBadArguments(fn, ...args) {
  */
 function calculator(number = 0) {
     let resultObject = {};
+    let isNumber = typeof(number) === 'number';
 
-    if (getClass(number) !== 'Number') {
+    if (!isNumber) {
         throw new Error('number is not a number');
     } else {
         let sumResult = number;
