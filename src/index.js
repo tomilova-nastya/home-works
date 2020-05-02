@@ -133,7 +133,7 @@ function calculator(number = 0) {
 
         resultObject.sum = function (...args) {
             for (let arg of args) {
-                sumResult = sumResult + arg;
+                sumResult += arg;
             }
 
             return sumResult;
@@ -143,7 +143,7 @@ function calculator(number = 0) {
 
         resultObject.dif = function (...args) {
             for (let arg of args) {
-                difResult = difResult - arg;
+                difResult -= arg;
             }
 
             return difResult;
@@ -156,7 +156,7 @@ function calculator(number = 0) {
                 if (arg === 0) {
                     throw new Error('division by 0');
                 } else {
-                    divResult = divResult / arg;
+                    divResult /= arg;
                 }
             }
 
@@ -167,7 +167,7 @@ function calculator(number = 0) {
 
         resultObject.mul = function (...args) {
             for (let arg of args) {
-                mulResult = mulResult * arg;
+                mulResult *= arg;
             }
 
             return mulResult;
