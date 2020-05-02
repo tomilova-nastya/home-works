@@ -17,6 +17,25 @@
    isAllTrue([100, 2, 3, 4, 5], n => n < 10) // вернет false
  */
 function isAllTrue(array, fn) {
+    if (getClass(array) !== 'Array' || array.length <= 0) {
+        throw new Error('empty array');
+    } else if (getClass(fn) !== 'Function') {
+        throw new Error('fn is not a function');
+    } else {
+        let result = true;
+
+        for (let elem of array) {
+            if (!fn(elem)) {
+                result = false;
+            }
+        }
+
+        return result;
+    }
+}
+
+function getClass(obj) {
+    return {}.toString.call(obj).slice(8, -1);
 }
 
 /*
@@ -36,6 +55,21 @@ function isAllTrue(array, fn) {
    isSomeTrue([1, 2, 3, 4, 5], n => n > 20) // вернет false
  */
 function isSomeTrue(array, fn) {
+    if (getClass(array) !== 'Array' || array.length <= 0) {
+        throw new Error('empty array');
+    } else if (getClass(fn) !== 'Function') {
+        throw new Error('fn is not a function');
+    } else {
+        let result = false;
+
+        for (let elem of array) {
+            if (fn(elem)) {
+                result = true;
+            }
+        }
+
+        return result;
+    }
 }
 
 /*
@@ -49,7 +83,22 @@ function isSomeTrue(array, fn) {
  3.3: Необходимо выбрасывать исключение в случаях:
    - fn не является функцией (с текстом "fn is not a function")
  */
-function returnBadArguments(fn) {
+function returnBadArguments(fn, ...args) {
+    if (getClass(fn) !== 'Function') {
+        throw new Error('fn is not a function');
+    } else {
+        let resultArray = [];
+
+        for (let arg of args) {
+            try {
+                fn(arg);
+            } catch (e) {
+                resultArray.push(arg);
+            }
+        }
+
+        return resultArray;
+    }
 }
 
 /*
@@ -69,7 +118,58 @@ function returnBadArguments(fn) {
    - number не является числом (с текстом "number is not a number")
    - какой-либо из аргументов div является нулем (с текстом "division by 0")
  */
-function calculator() {
+function calculator(number = 0) {
+    let resultObject = {};
+
+    if (getClass(number) !== 'Number') {
+        throw new Error('number is not a number');
+    } else {
+        let sumResult = number;
+
+        resultObject.sum = function (...args) {
+            for (let arg of args) {
+                sumResult = sumResult + arg;
+            }
+
+            return sumResult;
+        };
+
+        let difResult = number;
+
+        resultObject.dif = function (...args) {
+            for (let arg of args) {
+                difResult = difResult - arg;
+            }
+
+            return difResult;
+        };
+
+        let divResult = number;
+
+        resultObject.div = function (...args) {
+            for (let arg of args) {
+                if (arg === 0) {
+                    throw new Error('division by 0');
+                } else {
+                    divResult = divResult / arg;
+                }
+            }
+
+            return divResult;
+        };
+
+        let mulResult = number;
+
+        resultObject.mul = function (...args) {
+            for (let arg of args) {
+                mulResult = mulResult * arg;
+            }
+
+            return mulResult;
+        };
+
+        return resultObject;
+    }
 }
 
 /* При решении задач, пострайтесь использовать отладчик */
