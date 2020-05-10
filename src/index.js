@@ -11,7 +11,8 @@
    createDivWithText('loftschool') // создаст элемент div, поместит в него 'loftschool' и вернет созданный элемент
  */
 function createDivWithText(text) {
-    let elem = document.createElement("div");
+    let elem = document.createElement('div');
+
     elem.textContent = text;
 
     return elem;
@@ -52,9 +53,9 @@ function findAllPSiblings(where) {
     let children = where.children;
     let result = [];
 
-    for (let child of children){
-        if(child.nextSibling) {
-            if(child.nextSibling.tagName[0] === "P") {
+    for (let child of children) {
+        if (child.nextSibling) {
+            if (child.nextSibling.tagName[0] === 'P') {
                 result.push(child);
             }
         }
@@ -197,7 +198,7 @@ function collectDOMStat(root) {
             // Суммирую в result
             result.tags = sumObjects(result.tags, elementTag);
             result.classes = sumObjects(result.classes, elementClasses);
-        } else if (element.nodeType === 3){
+        } else if (element.nodeType === 3) {
             result.texts += 1;
         }
     }
@@ -205,7 +206,7 @@ function collectDOMStat(root) {
     return result;
 }
 
-function sumObjects(field1, field2){
+function sumObjects(field1, field2) {
     for (let subField in field2) {
         if (field1.hasOwnProperty(subField)) {
             field1[subField] += field2[subField];
