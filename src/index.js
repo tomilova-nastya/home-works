@@ -11,6 +11,10 @@
    createDivWithText('loftschool') // создаст элемент div, поместит в него 'loftschool' и вернет созданный элемент
  */
 function createDivWithText(text) {
+    let elem = document.createElement("div");
+    elem.textContent = text;
+
+    return elem;
 }
 
 /*
@@ -22,6 +26,7 @@ function createDivWithText(text) {
    prepend(document.querySelector('#one'), document.querySelector('#two')) // добавит элемент переданный первым аргументом в начало элемента переданного вторым аргументом
  */
 function prepend(what, where) {
+    where.prepend(what);
 }
 
 /*
@@ -44,6 +49,18 @@ function prepend(what, where) {
    findAllPSiblings(document.body) // функция должна вернуть массив с элементами div и span т.к. следующим соседом этих элементов является элемент с тегом P
  */
 function findAllPSiblings(where) {
+    let children = where.children;
+    let result = [];
+
+    for (let child of children){
+        if(child.nextSibling) {
+            if(child.nextSibling.tagName[0] === "P") {
+                result.push(child);
+            }
+        }
+    }
+
+    return result;
 }
 
 /*
@@ -64,9 +81,9 @@ function findAllPSiblings(where) {
    findError(document.body) // функция должна вернуть массив с элементами 'привет' и 'loftschool'
  */
 function findError(where) {
-    var result = [];
+    let result = [];
 
-    for (var child of where.childNodes) {
+    for (let child of where.children) {
         result.push(child.innerText);
     }
 
@@ -86,6 +103,15 @@ function findError(where) {
    должно быть преобразовано в <div></div><p></p>
  */
 function deleteTextNodes(where) {
+    let allNodes = where.childNodes;
+
+    for (let i = allNodes.length - 1; i >=0 ; i--) {
+        if (allNodes[i].nodeType === 3) {
+            where.removeChild(allNodes[i]);
+        }
+    }
+
+    return where;
 }
 
 /*
@@ -100,6 +126,17 @@ function deleteTextNodes(where) {
    должно быть преобразовано в <span><div><b></b></div><p></p></span>
  */
 function deleteTextNodesRecursive(where) {
+    let allNodes = where.childNodes;
+
+    for (let i = allNodes.length - 1; i >=0 ; i--) {
+        if (allNodes[i].nodeType === 3) {
+            where.removeChild(allNodes[i]);
+        } else if (allNodes[i].childNodes !== undefined) {
+            deleteTextNodesRecursive(allNodes[i]);
+        }
+    }
+
+    return where;
 }
 
 /*
@@ -122,7 +159,62 @@ function deleteTextNodesRecursive(where) {
      texts: 3
    }
  */
+
 function collectDOMStat(root) {
+    let result = {
+        tags: {},
+        classes: {},
+        texts: 0
+    };
+
+    for (let element of root.childNodes) {
+        if (element.nodeType === 1) {
+
+            if (element.childNodes) {
+                // Рекурсивный сбор статистики у потомков
+                let recursionResult = collectDOMStat(element);
+
+                // Суммирую в result
+                result.tags = sumObjects(result.tags, recursionResult.tags)
+                result.classes = sumObjects(result.classes, recursionResult.classes)
+                result.texts += recursionResult.texts;
+            }
+
+            // Сбор статистики по текущему элементу
+            let elementTag = {};
+            let elementClasses = {};
+
+            elementTag[element.nodeName] = 1;
+
+            for (let className of element.classList) {
+                if (elementClasses.hasOwnProperty(className)) {
+                    elementClasses[className] += 1;
+                } else {
+                    elementClasses[className] = 1;
+                }
+            }
+
+            // Суммирую в result
+            result.tags = sumObjects(result.tags, elementTag);
+            result.classes = sumObjects(result.classes, elementClasses);
+        } else if (element.nodeType === 3){
+            result.texts += 1;
+        }
+    }
+
+    return result;
+}
+
+function sumObjects(field1, field2){
+    for (let subField in field2) {
+        if (field1.hasOwnProperty(subField)) {
+            field1[subField] += field2[subField];
+        } else {
+            field1[subField] = field2[subField];
+        }
+    }
+
+    return field1;
 }
 
 /*
