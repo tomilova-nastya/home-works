@@ -61,10 +61,10 @@ function emulateClick(target) {
  */
 function delegate(target, fn) {
     let allElements = [...target.children];
-    let buttons = allElements.filter(item => item.nodeName === "BUTTON");
+    let buttons = allElements.filter(item => item.nodeName === 'BUTTON');
 
-    for (let button of buttons){
-        button.addEventListener("click", fn);
+    for (let button of buttons) {
+        button.addEventListener('click', fn);
     }
 }
 
@@ -80,10 +80,10 @@ function delegate(target, fn) {
 function once(target, fn) {
     let onceFn = function (event) {
         fn(event);
-        target.removeEventListener("click", onceFn)
+        target.removeEventListener('click', onceFn)
     };
 
-    target.addEventListener("click", onceFn);
+    target.addEventListener('click', onceFn);
 
 }
 
