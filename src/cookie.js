@@ -48,5 +48,63 @@ filterNameInput.addEventListener('keyup', function() {
 });
 
 addButton.addEventListener('click', () => {
-    // здесь можно обработать нажатие на кнопку "добавить cookie"
+    let existingCookies = listTable.children;
+
+    // Добавляю и обновляю cookie в браузере
+    document.cookie = encodeURIComponent(addNameInput.value) + '=' + encodeURIComponent(addValueInput.value);
+
+    if (existingCookies.length > 0) {
+        // Обновляю cookie на странице
+        for (let existingCookie of existingCookies) {
+            let existingName = existingCookie.children[0].innerHTML;
+
+            if (existingName === addNameInput.value) {
+                existingCookie.children[1].innerHTML = addValueInput.value;
+
+                return;
+            }
+        }
+    }
+
+    // Добавляю cookie на страницу
+    let tr = document.createElement('tr');
+    let nameCell = document.createElement('th');
+    let valueCell = document.createElement('th');
+
+    listTable.appendChild(tr);
+
+    nameCell.innerHTML = addNameInput.value;
+    tr.appendChild(nameCell);
+
+    valueCell.innerHTML = addValueInput.value;
+    tr.appendChild(valueCell);
+
+    // Добавляю кнопку удаления
+    let removeCell = document.createElement('th');
+    let removeButton = document.createElement('button');
+
+    tr.appendChild(removeCell);
+    removeButton.innerHTML = 'Удалить';
+    removeButton.className = 'remove-button';
+    removeCell.appendChild(removeButton);
+    removeButton.addEventListener('click', (event) => {
+        removeHandler(event);
+    })
 });
+
+function removeHandler(e) {
+    let cookieRow = e.target.parentNode.parentNode;
+
+    // Удаляю cookie из браузера
+    let cookieName = encodeURIComponent(cookieRow.children[0].innerHTML);
+    deleteCookie(cookieName);
+
+    // Удаляю из таблицы
+    cookieRow.remove();
+};
+
+function deleteCookie(cookieName) {
+    let cookieDate= new Date();
+    cookieDate.setTime(cookieDate.getTime() - 1);
+    document.cookie = cookieName + "=; expires=" + cookieDate.toGMTString();
+}
