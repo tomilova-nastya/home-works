@@ -68,24 +68,30 @@ const filterBlock = homeworkContainer.querySelector('#filter-block');
 const filterInput = homeworkContainer.querySelector('#filter-input');
 /* Блок с результатами поиска */
 const filterResult = homeworkContainer.querySelector('#filter-result');
+/* Массив городов */
+let cities = [];
 
-filterInput.addEventListener('keyup', function(e) {
+loadTowns()
+    .then(result => {
+        cities = result;
+
+        loadingBlock.style = 'display: none';
+        filterBlock.style = '';
+    });
+
+filterInput.addEventListener('keyup', function (e) {
     filterResult.innerHTML = '';
     let chunk = e.target.value;
 
     if (chunk.length > 0) {
-        filterResult.innerHTML = '';
+        for (let city of cities) {
+            if (isMatching(city.name, chunk)) {
+                let div = document.createElement('div');
 
-        loadTowns().then((cities) => {
-            for (let city of cities) {
-                if (isMatching(city.name, chunk)) {
-                    let div = document.createElement('div');
-
-                    filterResult.appendChild(div);
-                    div.innerHTML = city.name;
-                }
+                filterResult.appendChild(div);
+                div.innerHTML = city.name;
             }
-        });
+        }
     }
 });
 
