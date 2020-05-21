@@ -37,6 +37,20 @@ const homeworkContainer = document.querySelector('#homework-container');
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
 function loadTowns() {
+    return new Promise((resolve) => {
+        const xhr = new XMLHttpRequest();
+
+        xhr.responseType = 'json';
+        xhr.open('GET', 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json');
+        xhr.send();
+
+        xhr.addEventListener('load', () => {
+            let cities = [...xhr.response];
+
+            cities.sort((a, b) => a.name > b.name ? 1 : -1);
+            resolve(cities);
+        });
+    });
 }
 
 /*
@@ -51,6 +65,14 @@ function loadTowns() {
    isMatching('Moscow', 'Moscov') // false
  */
 function isMatching(full, chunk) {
+    full = full.toLowerCase();
+    chunk = chunk.toLowerCase();
+
+    if (full.indexOf(chunk) === -1) {
+        return false;
+    }
+
+    return true;
 }
 
 /* Блок с надписью "Загрузка" */
@@ -62,8 +84,24 @@ const filterInput = homeworkContainer.querySelector('#filter-input');
 /* Блок с результатами поиска */
 const filterResult = homeworkContainer.querySelector('#filter-result');
 
-filterInput.addEventListener('keyup', function() {
-    // это обработчик нажатия кливиш в текстовом поле
+filterInput.addEventListener('keyup', function(e) {
+    filterResult.innerHTML = '';
+    let chunk = e.target.value;
+
+    if (chunk.length > 0) {
+        filterResult.innerHTML = '';
+
+        loadTowns().then((cities) => {
+            for (let city of cities) {
+                if (isMatching(city.name, chunk)) {
+                    let div = document.createElement('div');
+
+                    filterResult.appendChild(div);
+                    div.innerHTML = city.name;
+                }
+            }
+        });
+    }
 });
 
 export {

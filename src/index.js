@@ -9,10 +9,10 @@
    delayPromise(3) // вернет promise, который будет разрешен через 3 секунды
  */
 function delayPromise(seconds) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         setTimeout(() => {
             resolve();
-            }, seconds * 1000);
+        }, seconds * 1000);
     });
 }
 
@@ -30,7 +30,7 @@ function delayPromise(seconds) {
    loadAndSortTowns().then(towns => console.log(towns)) // должна вывести в консоль отсортированный массив городов
  */
 function loadAndSortTowns() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const xhr = new XMLHttpRequest();
 
         xhr.responseType = 'json';
