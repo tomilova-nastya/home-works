@@ -48,25 +48,21 @@ filterNameInput.addEventListener('keyup', function() {
 });
 
 addButton.addEventListener('click', () => {
-    let existingCookies = listTable.children;
+    let cookiesInTable = listTable.children;
 
     // Добавляю и обновляю cookie в браузере
     document.cookie = encodeURIComponent(addNameInput.value) + '=' + encodeURIComponent(addValueInput.value);
 
-    if (existingCookies.length > 0) {
-        // Обновляю cookie на странице
-        for (let existingCookie of existingCookies) {
-            let existingName = existingCookie.children[0].innerHTML;
+    if (cookiesInTable.length > 0) {
+        let newCookie = {name: addNameInput.value, value: addValueInput.value};
+        let cookieIsExist = updateCookieInTableIfExist(cookiesInTable, newCookie);
 
-            if (existingName === addNameInput.value) {
-                existingCookie.children[1].innerHTML = addValueInput.value;
-
-                return;
-            }
+        if(cookieIsExist) {
+            return;
         }
     }
 
-    // Добавляю cookie на страницу
+    // Добавляю строку с cookie в таблицу
     let tr = document.createElement('tr');
     let nameCell = document.createElement('th');
     let valueCell = document.createElement('th');
@@ -75,36 +71,49 @@ addButton.addEventListener('click', () => {
 
     nameCell.innerHTML = addNameInput.value;
     tr.appendChild(nameCell);
-
     valueCell.innerHTML = addValueInput.value;
     tr.appendChild(valueCell);
 
-    // Добавляю кнопку удаления
+    // Добавляю кнопку удаления в строку cookie
     let removeCell = document.createElement('th');
     let removeButton = document.createElement('button');
 
     tr.appendChild(removeCell);
     removeButton.innerHTML = 'Удалить';
-    removeButton.className = 'remove-button';
     removeCell.appendChild(removeButton);
+
+    // Добавляю обработчик на нажатие кнопки удаления
     removeButton.addEventListener('click', (event) => {
-        removeHandler(event);
+        let cookieRaw = event.target.parentNode.parentNode;
+
+        removeCookieFromBrowser(cookieRaw);
+        removeCookieFromTable(cookieRaw);
     })
 });
 
-function removeHandler(e) {
-    let cookieRow = e.target.parentNode.parentNode;
+function updateCookieInTableIfExist(cookiesInTable, newCookie) {
+    for (let cookieRaw of cookiesInTable) {
+        let cookieNameNode = cookieRaw.children[0];
+        let cookieValueNode = cookieRaw.children[1];
 
-    // Удаляю cookie из браузера
-    let cookieName = encodeURIComponent(cookieRow.children[0].innerHTML);
-    deleteCookie(cookieName);
+        if (cookieNameNode.innerHTML === newCookie.name) {
+            cookieValueNode.innerHTML = newCookie.value;
 
-    // Удаляю из таблицы
-    cookieRow.remove();
-};
+            return true;
+        }
+    }
+    
+    return false;
+}
 
-function deleteCookie(cookieName) {
+function removeCookieFromBrowser(cookieRaw) {
+    let cookieName = encodeURIComponent(cookieRaw.children[0].innerHTML);
+
     let cookieDate= new Date();
     cookieDate.setTime(cookieDate.getTime() - 1);
     document.cookie = cookieName + "=; expires=" + cookieDate.toGMTString();
-}
+};
+
+function removeCookieFromTable(cookieRaw) {
+    cookieRaw.remove();
+};
