@@ -43,11 +43,12 @@ const addButton = homeworkContainer.querySelector('#add-button');
 // таблица со списком cookie
 const listTable = homeworkContainer.querySelector('#list-table tbody');
 
-filterNameInput.addEventListener('keyup', function(e) {
-    let cookiesInBrowser = getParsedCookies();
-    let chunk = e.target.value;
-
+filterNameInput.addEventListener('keyup', function() {
     listTable.innerHTML = '';
+
+    let chunk = filterNameInput.value;
+    let cookiesInBrowser = getParsedCookies();
+
     for (let cookieObject of cookiesInBrowser) {
         if (isMatching(cookieObject.name, chunk) ||
             isMatching(cookieObject.value, chunk)) {
@@ -57,6 +58,8 @@ filterNameInput.addEventListener('keyup', function(e) {
 });
 
 addButton.addEventListener('click', () => {
+    let filterValue = filterNameInput.value;
+
     // Обновляю и добавляю cookie в браузере
     document.cookie = encodeURIComponent(addNameInput.value) + '=' + encodeURIComponent(addValueInput.value);
 
@@ -68,12 +71,21 @@ addButton.addEventListener('click', () => {
         let cookieIsExist = updateCookieInTableIfExist(cookiesInTable, newCookie);
 
         if(cookieIsExist) {
+            if (!isMatching(newCookie.name, filterValue) &&
+                !isMatching(newCookie.value, filterValue)) {
+
+                let cookieNode = getCookieNodeByName(newCookie.name);
+                removeCookieFromTable(cookieNode);
+            }
+
             return;
         }
     }
 
-    // Добавляю cookie в таблицу
-    addCookieInTable(newCookie);
+    if (isMatching(newCookie.name, filterValue) ||
+        isMatching(newCookie.value, filterValue)) {
+        addCookieInTable(newCookie);
+    }
 });
 
 function addCookieInTable(newCookie) {
@@ -154,4 +166,11 @@ function getParsedCookies() {
     }
 
     return result;
+}
+
+function getCookieNodeByName(cookieName) {
+    let rawNodes = [...document.querySelectorAll('tr')];
+    let cookieNode = rawNodes.find(el => el.children[0].textContent === cookieName);
+    
+    return cookieNode;
 }
