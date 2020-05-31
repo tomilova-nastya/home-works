@@ -1,0 +1,95 @@
+.place-date {
+    color: #c3c3c3;
+    margin-left: 5px;
+}
+
+.comment_wrapper{
+    padding: 20px 0 10px 0;
+}
+
+.header_wrapper {
+    position: fixed;
+    width: 350px;
+    color: white;
+    background-color: #fab638;
+    margin: -11px 0 0 -30px;
+    padding: 15px 30px;
+    font-size: 10px;
+}
+
+.reviews_wrapper {
+    padding: 50px 0 0 0;
+    color: #333333;
+}
+
+.line{
+    height: 1px;
+    width: 100%;
+    background-color: gray;
+    margin: 25px 0;
+}
+
+.name{
+    font-weight: bold;
+}
+
+.form_header{
+    color: orange;
+    font-weight: bold;
+    margin: 35px 0 20px 0;
+}
+
+.balloon_wrapper {
+    width: 350px;
+    margin-left: 18px;
+    max-height: 600px;
+}
+
+input {
+    width: 336px;
+    height: 24px;
+    margin-bottom: 22px;
+    padding-left: 8px;
+}
+
+textarea {
+    font-family: sans-serif;
+    width: 339px;
+    height: 85px;
+    margin-bottom: 22px;
+    padding: 8px 0 0 8px;
+}
+
+.button {
+    width: 95px;
+    height: 34px;
+    margin: -5px 0 30px 253px;
+    font-weight: bold;
+    color: white;
+    background-color: #fab638;
+    border: 1px solid darkorange;
+    border-radius: 3px;
+}
+
+.button:hover{
+    background-color: darkorange;
+}
+
+::-webkit-scrollbar{
+    border: 10px;
+}
+
+::-webkit-scrollbar-thumb{
+    background-color: transparent !important;
+}
+
+.ymaps-2-1-76-balloon__content {
+    padding: 10px 12px !important;
+    margin-right: 0 !important;
+}
+
+.ymaps-2-1-76-balloon__close-button{
+    width: 10px !important;
+    height: 10px !important;
+    margin: 17px 12px 0 0 !important;
+}
