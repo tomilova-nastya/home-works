@@ -20,7 +20,9 @@ module.exports = {
     },
     devServer: {
         index: 'index.html',
-        overlay: true
+        overlay: true,
+        publicPath: "/public/",
+        contentBase: path.join(__dirname, 'public')
     },
     output: {
         filename: '[name].[hash].js',

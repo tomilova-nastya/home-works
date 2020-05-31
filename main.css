@@ -62,7 +62,7 @@ textarea {
     padding: 8px 0 0 8px;
 }
 
-.button {
+.sendButton {
     width: 95px;
     height: 34px;
     margin: -5px 0 30px 253px;
@@ -73,7 +73,7 @@ textarea {
     border-radius: 3px;
 }
 
-.button:hover{
+.sendButton:hover{
     background-color: darkorange;
 }
 
