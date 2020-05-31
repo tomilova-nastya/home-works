@@ -1,3 +1,5 @@
+import balloonRender from '../templates/balloon.hbs';
+
 function mapInit() {
     ymaps.ready(() => {
         let myMap = new ymaps.Map('map', {
@@ -6,45 +8,33 @@ function mapInit() {
         });
 
         myMap.events.add('click', function(e) {
-            var coords = e.get('coords');
-            var geoCoords = ymaps.geocode(coords);
-            var position = e.get('position');
+            let coords = e.get('coords');
+            let geoCoords = ymaps.geocode(coords);
+            let position = e.get('position');
 
             geoCoords.then(response => {
-                var obj = {};
+                let obj = {};
                 obj.coords = coords;
                 obj.address = response.geoObjects.get(0).properties.get('text');
                 obj.comments = [];
-                openPopup(obj, response.geoObjects);
+                openPopup(myMap, obj);
             });
         });
     })
 }
 
-function openPopup(obj, geoObjects) {
-    var myPlaceMark = new ymaps.GeoObject({
-        geometry: {
-            type: "Point",
-            coordinates: [55.75, 37.63]
-        },
-        properties: {
-            // Контент метки.
-            iconContent: 'icon контент',
-            hintContent: 'hint контент'
-        }
-    }, {});
+function openPopup(myMap, obj) {
+    let myPlacemark = new ymaps.Placemark(obj.coords, {
+        balloonContent: balloonRender()
+    }, {
+        preset: 'islands#icon',
+        iconColor: '#0095b6'
+    })
 
-    geoObjects
-        .add(myPlaceMark)
-        .add(new ymaps.Placemark(obj.coords, {
-            balloonContent: 'цвет <strong>воды пляжа бонди</strong>'
-        }, {
-            preset: 'islands#icon',
-            iconColor: '#0095b6'
-        }));
+    myMap.geoObjects.add(myPlacemark);
+    myPlacemark.balloon.open();
 }
 
 export {
-    mapInit,
-    openPopup
+    mapInit
 }

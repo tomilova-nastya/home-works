@@ -1,4 +1,4 @@
-import {mapInit, openPopup} from './js/ymaps';
+import {mapInit} from './js/ymaps';
 //import render from './templates/friends.hbs';
 
 mapInit();
