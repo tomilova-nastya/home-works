@@ -1,18 +1,18 @@
 <div class="balloon_wrapper">
     <div class="header_wrapper">{{ address }}</div>
-    <div class="reviews_wrapper">
-        {{#each comments}}
-            <div class="comment_wrapper">
-                <span class="name">{{ name }}</span> <span class="place-date">{{ place }} {{ date }}</span></br>
-                {{ comment }}
-            </div>
-        {{/each}}
-        {{#if comments}}
-            <div class="line"></div>
-        {{/if}}
-    </div>
+    {{#if comments}}
+        <div class="reviews_wrapper">
+            {{#each comments}}
+                <div class="comment_wrapper">
+                    <span class="name">{{ name }}</span> <span class="place-date">{{ place }} {{ date }}</span></br>
+                    {{ comment }}
+                </div>
+            {{/each}}
+                <div class="line"></div>
+        </div>
+    {{/if}}
     <p class="form_header">ВАШ ОТЗЫВ</p>
     <input type="text" placeholder="Ваше имя"></br>
     <input type="text" placeholder="Укажите заведение"></br>
-    <textarea placeholder="Поделитесь впечатлениями"></textarea><input class="button" type="button" value="Добавить"></br>
+    <textarea placeholder="Поделитесь впечатлениями"></textarea><input class="button" type="button" value="Добавить">
 </div>
