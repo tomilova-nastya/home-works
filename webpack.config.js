@@ -21,12 +21,12 @@ module.exports = {
     devServer: {
         index: 'index.html',
         overlay: true,
-        publicPath: "/public/",
-        contentBase: path.join(__dirname, 'public')
+        publicPath: '/'
     },
     output: {
         filename: '[name].[hash].js',
-        path: path.resolve('dist')
+        path: path.resolve('dist'),
+        publicPath: '/'
     },
     devtool: 'source-map',
     module: { rules },

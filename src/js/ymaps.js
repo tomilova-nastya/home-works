@@ -1,4 +1,5 @@
 import balloonRender from '../templates/balloon.hbs';
+import commentsRender from '../templates/comments.hbs';
 
 function mapInit() {
     ymaps.ready(() => {
@@ -7,26 +8,75 @@ function mapInit() {
             zoom: 10
         });
 
-        myMap.events.add('click', function(e) {
-            let coords = e.get('coords');
-            let geoCoords = ymaps.geocode(coords);
-            let position = e.get('position');
-
-            geoCoords.then(response => {
-                let balloonContent = {};
-
-                balloonContent.coords = coords;
-                balloonContent.address = response.geoObjects.get(0).properties.get('text');
-                // научиться доставать массив объектов с полями name, place, comment, date
-                balloonContent.comments = [];
-
-                openBalloon(myMap, balloonContent);
-            });
+        myMap.events.add('click', function (event) {
+            let coords = event.get('coords');
+            //let position = e.get('position');
+            
+            getActualBalloonContent(coords).then((balloonContent) => {
+                    openBalloon(myMap, balloonContent);
+                });
         });
+        
     })
 }
 
+function getActualBalloonContent(coords) {
+    return ymaps.geocode(coords).then(response => {
+        let balloonContent = {};
+
+        balloonContent.coords = coords;
+        balloonContent.address = response.geoObjects.get(0).properties.get('text');
+        balloonContent.comments = getExistingReviews(coords);
+
+        return balloonContent;
+    });
+}
+
 function openBalloon(myMap, balloonContent) {
+    let myPlacemark = createPlacemark(myMap, balloonContent);
+    let isDataSaved = false;
+
+    myPlacemark.balloon.events.add('open', function (event) {
+        let coords = balloonContent.coords;
+        let commentsNode = document.querySelector('#commentsNodeId');
+
+        balloonContent.comments = getExistingReviews(coords);
+        commentsNode.innerHTML = commentsRender(balloonContent);
+
+        let sendButton = document.querySelector('input.sendButton');
+        let nameInput = document.querySelector('input.nameInput');
+        let placeInput = document.querySelector('input.placeInput');
+        let commentInput = document.querySelector('textarea.commentTextarea');
+
+        let date = new Date();
+        let currentDate = `${date.getDay()}.${date.getMonth()}.${date.getFullYear()}`;
+
+        sendButton.addEventListener('click', (e) => {
+            let coords = balloonContent.coords;
+            let newReview = {
+                name: nameInput.value,
+                place: placeInput.value,
+                comment: commentInput.value,
+                date: currentDate
+            }
+
+            addOrUpdateReview(coords, newReview);
+
+            isDataSaved = true;
+            myPlacemark.balloon.close();
+        })
+    });
+
+    myPlacemark.balloon.events.add('close', () => {
+        if (!isDataSaved) {
+            myMap.geoObjects.remove(myPlacemark);
+        }
+    });
+
+    myPlacemark.balloon.open();
+}
+
+function createPlacemark(myMap, balloonContent) {
     let myPlacemark = new ymaps.Placemark(balloonContent.coords, {
         balloonContent: balloonRender(balloonContent)
     }, {
@@ -35,72 +85,34 @@ function openBalloon(myMap, balloonContent) {
     })
 
     myMap.geoObjects.add(myPlacemark);
-    myPlacemark.balloon.open();
 
-    let isTheDataSent = false;
-
-    myPlacemark.balloon.events.add('open', function() {
-        let sendButton = document.querySelector('input.sendButton');
-        sendButton.addEventListener('click', (e) => {
-            let coords = balloonContent.coords;
-            let date = new Date();
-            let newReview = {
-                name: document.querySelector('input.nameInput').value,
-                place: document.querySelector('input.placeInput').value,
-                comment: document.querySelector('textarea.commentTextarea').value,
-                date: `${date.getDay()}.${date.getMonth()}.${date.getFullYear()}`
-            }
-
-            saveReview(coords, newReview);
-
-            isTheDataSent = true;
-            myPlacemark.balloon.close();
-        })
-    });
-
-    myPlacemark.balloon.events.add('close', function () {
-        if (!isTheDataSent) {
-            myMap.geoObjects.remove(myPlacemark);
-        }
-    });
+    return myPlacemark;
 }
 
-function saveReview(coords, newReview) {
-    // взять из json файла существующие объекты
-    const xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-    xhr.open('GET', 'http://localhost:8080/reviews.json');
-    xhr.send();
+function addOrUpdateReview(coords, newReview) {
+    let coords_string = JSON.stringify(coords);
+    let existingReviews_string = localStorage.getItem(coords_string);
+    let existingReviews = JSON.parse(existingReviews_string);
 
-    // найти есть ли среди объектов место с нашими кординатами и правильно запомнить
-    xhr.onload = function () {
-        let existingReviews = xhr.response;
-
-        let isExist = false;
-
-        if (existingReviews) {
-            if (existingReviews.length > 0) {
-                for (let extReview in existingReviews) {
-                    if (extReview.key === coords) {
-                        extReview.value.push(newReview);
-                        isExist = true;
-                    }
-                }
-            }
-
-            if(!isExist) {
-                existingReviews.push({
-                    key: coords,
-                    value: newReview
-                });
-            }
+    if (existingReviews_string !== null) {
+        if (existingReviews.length > 0) {
+            // Обновляем ревью в localStorage
+            existingReviews.push(newReview);
+            localStorage.setItem(coords_string, JSON.stringify(existingReviews));
         }
+    } else {
+        // Или создем новое
+        let reviews = [];
+        reviews.push(newReview)
+        localStorage.setItem(coords_string, JSON.stringify(reviews));
+    }
+}
 
-        // записать результат в файл
-        xhr.open("POST", '../../text.txt', true);
-        //Send the proper header information along with the request
-        xhr.send(existingReviews);
-    };
+function getExistingReviews(coords) {
+    let coords_string = JSON.stringify(coords);
+    let comments_string = localStorage.getItem(coords_string);
+
+    return JSON.parse(comments_string);
 }
 
 export {
