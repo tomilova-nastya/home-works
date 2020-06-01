@@ -4,20 +4,48 @@ import commentsRender from '../templates/comments.hbs';
 function mapInit() {
     ymaps.ready(() => {
         let myMap = new ymaps.Map('map', {
-            center: [55.7, 37.6],
+            center: [55.6, 37.6],
             zoom: 10
+        });
+
+        addExistingPlacemarks(myMap);
+        groupPlacemarks();
+        myMap.events.add('actionend', () => {
+            groupPlacemarks();
         });
 
         myMap.events.add('click', function (event) {
             let coords = event.get('coords');
             //let position = e.get('position');
-            
+
             getActualBalloonContent(coords).then((balloonContent) => {
-                    openBalloon(myMap, balloonContent);
-                });
+                createPlacemarkAndOpenBalloon(myMap, balloonContent);
+            });
         });
-        
+
     })
+}
+
+function groupPlacemarks() {
+    let allPlaces = getExistingPlaces();
+
+
+    // перебрать, если рядом - сгруппировать
+
+}
+
+function addExistingPlacemarks(myMap) {
+    let allPlaces = getExistingPlaces();
+
+    for (let place of allPlaces) {
+        addPlacemark(myMap, place)
+    }
+}
+
+function addPlacemark(myMap, placemarkData) {
+    getBalloonContent(placemarkData).then((balloonContent) => {
+        createPlacemarkAndBalloon(myMap, balloonContent);
+    });
 }
 
 function getActualBalloonContent(coords) {
@@ -32,7 +60,19 @@ function getActualBalloonContent(coords) {
     });
 }
 
-function openBalloon(myMap, balloonContent) {
+function getBalloonContent(placemarkData) {
+    return ymaps.geocode(placemarkData.coords).then(response => {
+        let balloonContent = {};
+
+        balloonContent.coords = placemarkData.coords;
+        balloonContent.address = response.geoObjects.get(0).properties.get('text');
+        balloonContent.comments = placemarkData.comments;
+
+        return balloonContent;
+    });
+}
+
+function createPlacemarkAndOpenBalloon(myMap, balloonContent) {
     let myPlacemark = createPlacemark(myMap, balloonContent);
     let isDataSaved = false;
 
@@ -76,6 +116,42 @@ function openBalloon(myMap, balloonContent) {
     myPlacemark.balloon.open();
 }
 
+function createPlacemarkAndBalloon(myMap, baloonContent) {
+    let html = balloonRender(baloonContent);
+    let myPlacemark = new ymaps.Placemark(baloonContent.coords, {
+        balloonContent: html
+    }, {
+        preset: 'islands#icon',
+        iconColor: '#0095b6'
+    })
+
+    myMap.geoObjects.add(myPlacemark);
+
+    myPlacemark.balloon.events.add('open', function (event) {
+        let sendButton = document.querySelector('input.sendButton');
+        let nameInput = document.querySelector('input.nameInput');
+        let placeInput = document.querySelector('input.placeInput');
+        let commentInput = document.querySelector('textarea.commentTextarea');
+
+        let date = new Date();
+        let currentDate = `${date.getDay()}.${date.getMonth()}.${date.getFullYear()}`;
+
+        sendButton.addEventListener('click', (e) => {
+            let coords = baloonContent.coords;
+            let newReview = {
+                name: nameInput.value,
+                place: placeInput.value,
+                comment: commentInput.value,
+                date: currentDate
+            }
+
+            addOrUpdateReview(coords, newReview);
+
+            myPlacemark.balloon.close();
+        })
+    });
+}
+
 function createPlacemark(myMap, balloonContent) {
     let myPlacemark = new ymaps.Placemark(balloonContent.coords, {
         balloonContent: balloonRender(balloonContent)
@@ -113,6 +189,24 @@ function getExistingReviews(coords) {
     let comments_string = localStorage.getItem(coords_string);
 
     return JSON.parse(comments_string);
+}
+
+function getExistingPlaces() {
+    let existingPlaces = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        let coords_string = localStorage.key(i);
+        let comments_string = localStorage.getItem(coords_string);
+
+        if (comments_string !== 'INFO') {
+            existingPlaces.push({
+                coords: JSON.parse(coords_string),
+                comments: JSON.parse(comments_string)
+            })
+        }
+    }
+
+    return existingPlaces;
 }
 
 export {
