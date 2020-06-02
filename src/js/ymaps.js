@@ -8,30 +8,97 @@ function mapInit() {
             zoom: 10
         });
 
-        addExistingPlacemarks(myMap);
-        groupPlacemarks();
-        myMap.events.add('actionend', () => {
-            groupPlacemarks();
-        });
 
-        myMap.events.add('click', function (event) {
-            let coords = event.get('coords');
-            //let position = e.get('position');
+        //addExistingPlacemarks(myMap);
+        getExistingBalloons().then((allExistingBalloons) => {
+            clasterizator(myMap, allExistingBalloons);
 
-            getActualBalloonContent(coords).then((balloonContent) => {
-                createPlacemarkAndOpenBalloon(myMap, balloonContent);
+            // удалять кластеризованные метки
+
+            myMap.events.add('click', function (event) {
+                let coords = event.get('coords');
+                //let position = e.get('position');
+
+                getActualBalloonContent(coords).then((balloonContent) => {
+                    createPlacemarkAndOpenBalloon(myMap, balloonContent);
+                });
             });
         });
 
     })
 }
 
-function groupPlacemarks() {
-    let allPlaces = getExistingPlaces();
+function clasterizator(myMap, allExistingBalloons) {
+    let clusterer = new ymaps.Clusterer({
+        preset: 'islands#invertedVioletClusterIcons',
+        groupByCoordinates: false,
+        clusterDisableClickZoom: true,
+        clusterHideIconOnBalloonOpen: false,
+        geoObjectHideIconOnBalloonOpen: false
+    });
+    /**
+     * Функция возвращает объект, содержащий данные метки.
+     * Поле данных clusterCaption будет отображено в списке геообъектов в балуне кластера.
+     * Поле balloonContentBody - источник данных для контента балуна.
+     * Оба поля поддерживают HTML-разметку.
+     * Список полей данных, которые используют стандартные макеты содержимого иконки метки
+     * и балуна геообъектов, можно посмотреть в документации.
+     * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/GeoObject.xml
+     */
+    let getPointData = function (pointData) {
+        let balloonContent = getBalloonContent(allExistingBalloons, pointData);
+        let balloonHTML = balloonRender(balloonContent);
 
+        return {
+            balloonContent: balloonHTML,
+            clusterCaption: '<a target="_blank" onclick="">метка <strong>' + JSON.stringify(pointData) + '</strong></a>'
+        };
+    }
+    /**
+     * Функция возвращает объект, содержащий опции метки.
+     * Все опции, которые поддерживают геообъекты, можно посмотреть в документации.
+     * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/GeoObject.xml
+     */
+    let getPointOptions = function () {
+        return {
+            preset: 'islands#violetIcon'
+        };
+    };
 
-    // перебрать, если рядом - сгруппировать
+    let points = getExistingPoints();
 
+    let geoObjects = [];
+
+    /**
+     * Данные передаются вторым параметром в конструктор метки, опции - третьим.
+     * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Placemark.xml#constructor-summary
+     */
+    for (var i = 0, len = points.length; i < len; i++) {
+        geoObjects[i] = new ymaps.Placemark(points[i], getPointData(points[i]), getPointOptions());
+    }
+
+    /**
+     * Можно менять опции кластеризатора после создания.
+     */
+    clusterer.options.set({
+        gridSize: 80,
+        clusterDisableClickZoom: true
+    });
+
+    /**
+     * В кластеризатор можно добавить javascript-массив меток (не геоколлекцию) или одну метку.
+     * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Clusterer.xml#add
+     */
+    clusterer.add(geoObjects);
+    myMap.geoObjects.add(clusterer);
+
+    /**
+     * Спозиционируем карту так, чтобы на ней были видны все объекты.
+     */
+
+    myMap.setBounds(clusterer.getBounds(), {
+        checkZoomRange: true
+    });
 }
 
 function addExistingPlacemarks(myMap) {
@@ -43,7 +110,7 @@ function addExistingPlacemarks(myMap) {
 }
 
 function addPlacemark(myMap, placemarkData) {
-    getBalloonContent(placemarkData).then((balloonContent) => {
+    generateBalloonContent(placemarkData).then((balloonContent) => {
         createPlacemarkAndBalloon(myMap, balloonContent);
     });
 }
@@ -60,7 +127,7 @@ function getActualBalloonContent(coords) {
     });
 }
 
-function getBalloonContent(placemarkData) {
+function generateBalloonContent(placemarkData) {
     return ymaps.geocode(placemarkData.coords).then(response => {
         let balloonContent = {};
 
@@ -70,6 +137,31 @@ function getBalloonContent(placemarkData) {
 
         return balloonContent;
     });
+}
+
+function getExistingBalloons() {
+    return new Promise((resolve) => {
+        let existingBalloonContent = [];
+
+        for (let i = 0; i < localStorage.length; i++) {
+            let coords_string = localStorage.key(i);
+            let comments_string = localStorage.getItem(coords_string);
+
+            if (comments_string !== 'INFO') {
+                ymaps.geocode(JSON.parse(coords_string)).then((response) => {
+                    existingBalloonContent.push({
+                        coords: JSON.parse(coords_string),
+                        comments: JSON.parse(comments_string),
+                        address: response.geoObjects.get(0).properties.get('text')
+                    });
+
+                    if (i === localStorage.length - 1) {
+                        resolve(existingBalloonContent);
+                    }
+                })
+            }
+        }
+    })
 }
 
 function createPlacemarkAndOpenBalloon(myMap, balloonContent) {
@@ -117,9 +209,8 @@ function createPlacemarkAndOpenBalloon(myMap, balloonContent) {
 }
 
 function createPlacemarkAndBalloon(myMap, baloonContent) {
-    let html = balloonRender(baloonContent);
     let myPlacemark = new ymaps.Placemark(baloonContent.coords, {
-        balloonContent: html
+        balloonContent: balloonRender(baloonContent)
     }, {
         preset: 'islands#icon',
         iconColor: '#0095b6'
@@ -191,6 +282,17 @@ function getExistingReviews(coords) {
     return JSON.parse(comments_string);
 }
 
+function getBalloonContent(allExistingBalloons, coords) {
+    for (let balloon of allExistingBalloons) {
+        let existingCoords = JSON.stringify(balloon.coords);
+        let currentCoords = JSON.stringify(coords);
+
+        if (existingCoords === currentCoords) {
+            return balloon;
+        }
+    }
+}
+
 function getExistingPlaces() {
     let existingPlaces = [];
 
@@ -207,6 +309,20 @@ function getExistingPlaces() {
     }
 
     return existingPlaces;
+}
+
+function getExistingPoints() {
+    let existingPoints = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        let coords_string = localStorage.key(i);
+
+        if (coords_string !== 'loglevel:webpack-dev-server') {
+            existingPoints.push(JSON.parse(coords_string));
+        }
+    }
+
+    return existingPoints;
 }
 
 export {
