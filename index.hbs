@@ -11,4 +11,22 @@
     {{> "./src/templates/geo-content.hbs"}}
   </div>
 </body>
+<script  type="text/javascript">
+    function balloonHandler() {
+        let balloonControl = document.querySelector('.ymaps-2-1-76-balloon');
+        balloonControl.style.width = "804px";
+
+        let balloonContentControl = document.querySelector('.ymaps-2-1-76-balloon__content');
+        balloonContentControl.style = "width: 804px; height: 400px";
+        balloonContentControl.children[0].style = "width: 804px !important; overflow: hidden;";
+
+        let clasterControl = document.querySelector('.ymaps-2-1-76-b-cluster-content');
+        clasterControl.style.width = "804px";
+
+
+
+        let content = document.querySelector('.ymaps-2-1-76-b-cluster-tabs__section_type_content');
+        content.style = 'display: inline-block !important';
+    }
+</script>
 </html>

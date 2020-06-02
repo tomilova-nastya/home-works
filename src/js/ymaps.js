@@ -1,19 +1,21 @@
 import balloonRender from '../templates/balloon.hbs';
 import commentsRender from '../templates/comments.hbs';
+let myGeoObjects = [];
+
 
 function mapInit() {
     ymaps.ready(() => {
+
         let myMap = new ymaps.Map('map', {
             center: [55.6, 37.6],
             zoom: 10
         });
 
-
-        //addExistingPlacemarks(myMap);
         getExistingBalloons().then((allExistingBalloons) => {
-            clasterizator(myMap, allExistingBalloons);
+            if(allExistingBalloons.length === 0)
+                console.log('problem');
 
-            // удалять кластеризованные метки
+            clasterizator(myMap, allExistingBalloons);
 
             myMap.events.add('click', function (event) {
                 let coords = event.get('coords');
@@ -27,6 +29,8 @@ function mapInit() {
 
     })
 }
+
+let simpleText = 'simpapuska';
 
 function clasterizator(myMap, allExistingBalloons) {
     let clusterer = new ymaps.Clusterer({
@@ -49,11 +53,15 @@ function clasterizator(myMap, allExistingBalloons) {
         let balloonContent = getBalloonContent(allExistingBalloons, pointData);
         let balloonHTML = balloonRender(balloonContent);
 
+
         return {
-            balloonContent: balloonHTML,
-            clusterCaption: '<a target="_blank" onclick="">метка <strong>' + JSON.stringify(pointData) + '</strong></a>'
+            balloonContentHeader: '',
+            balloonContentBody: balloonHTML,
+            balloonContentFooter: '',
+            clusterCaption: '<p class="balloon_address" onclick="balloonHandler()">' + balloonContent.address + '</></p>'
         };
     }
+
     /**
      * Функция возвращает объект, содержащий опции метки.
      * Все опции, которые поддерживают геообъекты, можно посмотреть в документации.
@@ -75,6 +83,7 @@ function clasterizator(myMap, allExistingBalloons) {
      */
     for (var i = 0, len = points.length; i < len; i++) {
         geoObjects[i] = new ymaps.Placemark(points[i], getPointData(points[i]), getPointOptions());
+        myGeoObjects[i] = geoObjects[i];
     }
 
     /**
@@ -101,18 +110,9 @@ function clasterizator(myMap, allExistingBalloons) {
     });
 }
 
-function addExistingPlacemarks(myMap) {
-    let allPlaces = getExistingPlaces();
-
-    for (let place of allPlaces) {
-        addPlacemark(myMap, place)
-    }
-}
-
-function addPlacemark(myMap, placemarkData) {
-    generateBalloonContent(placemarkData).then((balloonContent) => {
-        createPlacemarkAndBalloon(myMap, balloonContent);
-    });
+function openBalloon(coords) {
+    //найти нужную метку
+    console.log(myGeoObjects);
 }
 
 function getActualBalloonContent(coords) {
@@ -168,7 +168,7 @@ function createPlacemarkAndOpenBalloon(myMap, balloonContent) {
     let myPlacemark = createPlacemark(myMap, balloonContent);
     let isDataSaved = false;
 
-    myPlacemark.balloon.events.add('open', function (event) {
+    myPlacemark.balloon.events.add('open', function () {
         let coords = balloonContent.coords;
         let commentsNode = document.querySelector('#commentsNodeId');
 
