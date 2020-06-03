@@ -135,7 +135,7 @@ textarea {
     padding: 10px 12px !important;
     margin-right: 0 !important;
     overflow: hidden !important;
-    width: 385px;
+    min-width: 385px;
     height: 400px;
 }
 
