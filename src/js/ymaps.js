@@ -2,6 +2,7 @@ import balloonRender from '../templates/balloon.hbs';
 import commentsRender from '../templates/comments.hbs';
 
 let myGeoObjects = [];
+let allReviewsDictionary = [];
 
 
 function mapInit() {
@@ -12,16 +13,22 @@ function mapInit() {
             zoom: 10
         });
 
-        getExistingBalloons().then((allExistingBalloons) => {
-
-            clasterizator(myMap, allExistingBalloons);
+        getExistingBalloons().then(() => {
+            var clusterer = new ymaps.Clusterer({
+                preset: 'islands#invertedDarkOrangeClusterIcons',
+                clusterDisableClickZoom: true,
+                openBalloonOnClick: true,
+                groupByCoordinates: false,
+                clusterBalloonContentLayout: 'cluster#balloonCarousel'
+            });
+            myMap.geoObjects.add(clusterer);
 
             myMap.events.add('click', function (event) {
                 let coords = event.get('coords');
                 //let position = e.get('position');
 
                 getActualBalloonContent(coords).then((balloonContent) => {
-                    createPlacemarkAndOpenBalloon(myMap, balloonContent);
+                    createPlacemarkAndOpenBalloon(myMap, balloonContent, clusterer);
                 });
             });
         });
@@ -155,33 +162,28 @@ function getExistingBalloons() {
     return new Promise((resolve) => {
         let existingBalloonContent = [];
 
-        if (localStorage.length === 1) {
-            resolve();
-        }
-
-        for (let i = 0; i < localStorage.length ; i++) {
-            let coords_string = localStorage.key(i);
-            let comments_string = localStorage.getItem(coords_string);
-
-            if (comments_string !== 'INFO') {
-                ymaps.geocode(JSON.parse(coords_string)).then((response) => {
+        if (allReviewsDictionary.length > 0) {
+            for (let i = 0; i < allReviewsDictionary.length ; i++) {
+                ymaps.geocode(allReviewsDictionary[i].coords).then((response) => {
                     existingBalloonContent.push({
-                        coords: JSON.parse(coords_string),
-                        comments: JSON.parse(comments_string),
+                        coords: allReviewsDictionary[i].coords,
+                        comments: allReviewsDictionary[i].value,
                         address: response.geoObjects.get(0).properties.get('text')
                     });
 
-                    if (i === localStorage.length - 1) {
+                    if (i === allReviewsDictionary.length - 1) {
                         resolve(existingBalloonContent);
                     }
                 })
             }
+        } else {
+            resolve([])
         }
     })
 }
 
-function createPlacemarkAndOpenBalloon(myMap, balloonContent) {
-    let myPlacemark = createPlacemark(myMap, balloonContent);
+function createPlacemarkAndOpenBalloon(myMap, balloonContent, clasterer) {
+    let myPlacemark = createPlacemark(myMap, balloonContent, clasterer);
     let isDataSaved = false;
 
     myPlacemark.balloon.events.add('open', function () {
@@ -259,7 +261,7 @@ function createPlacemarkAndBalloon(myMap, baloonContent) {
     });
 }
 
-function createPlacemark(myMap, balloonContent) {
+function createPlacemark(myMap, balloonContent, clasterer) {
     let myPlacemark = new ymaps.Placemark(balloonContent.coords, {
         balloonContent: balloonRender(balloonContent)
     }, {
@@ -267,35 +269,56 @@ function createPlacemark(myMap, balloonContent) {
         iconColor: '#0095b6'
     })
 
-    myMap.geoObjects.add(myPlacemark);
+    //myMap.geoObjects.add(myPlacemark);
+    clasterer.add(myPlacemark);
 
     return myPlacemark;
 }
 
 function addOrUpdateReview(coords, newReview) {
-    let coords_string = JSON.stringify(coords);
-    let existingReviews_string = localStorage.getItem(coords_string);
-    let existingReviews = JSON.parse(existingReviews_string);
+    let isExist = false;
 
-    if (existingReviews_string !== null) {
-        if (existingReviews.length > 0) {
-            // Обновляем ревью в localStorage
-            existingReviews.push(newReview);
-            localStorage.setItem(coords_string, JSON.stringify(existingReviews));
+    for (let review of allReviewsDictionary) {
+        if (review.coords === coords) {
+            review.value.push(newReview);
+            isExist = true;
         }
-    } else {
-        // Или создем новое
-        let reviews = [];
-        reviews.push(newReview)
-        localStorage.setItem(coords_string, JSON.stringify(reviews));
     }
+
+    if (!isExist) {
+        allReviewsDictionary.push({
+            coords: coords,
+            value: [newReview]
+        })
+    }
+
+
+
+    // let existingReviews = getExistingReviews(coords);
+    //
+    // if (existingReviews.length > 0) {
+    //     allReviewsDictionary
+    //     existingReviews.push(newReview);
+    //     if (existingReviews.length > 0) {
+    //         // Обновляем ревью в localStorage
+    //         localStorage.setItem(coords_string, JSON.stringify(existingReviews));
+    //     }
+    // } else {
+    //     // Или создем новое
+    //     let reviews = [];
+    //     reviews.push(newReview)
+    //     localStorage.setItem(coords_string, JSON.stringify(reviews));
+    // }
 }
 
 function getExistingReviews(coords) {
-    let coords_string = JSON.stringify(coords);
-    let comments_string = localStorage.getItem(coords_string);
+    for (let review of allReviewsDictionary) {
+        if (review.coords === coords) {
+            return review.value;
+        }
+    }
 
-    return JSON.parse(comments_string);
+    return [];
 }
 
 function getBalloonContent(allExistingBalloons, coords) {
