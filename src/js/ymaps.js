@@ -183,10 +183,18 @@ function getExistingBalloons() {
 }
 
 function createPlacemarkAndOpenBalloon(myMap, balloonContent, clasterer) {
-    let myPlacemark = createPlacemark(myMap, balloonContent, clasterer);
+    let myPlacemark = new ymaps.Placemark(balloonContent.coords, {
+        balloonContent: balloonRender(balloonContent)
+    }, {
+        preset: 'islands#icon',
+        iconColor: '#0095b6'
+    })
+
+    clasterer.add(myPlacemark);
+
     let isDataSaved = false;
 
-    myPlacemark.balloon.events.add('open', function () {
+    myPlacemark.balloon.events.add('open', () => {
         let coords = balloonContent.coords;
         let commentsNode = document.querySelector('#commentsNodeId');
 
@@ -219,7 +227,7 @@ function createPlacemarkAndOpenBalloon(myMap, balloonContent, clasterer) {
 
     myPlacemark.balloon.events.add('close', () => {
         if (!isDataSaved) {
-            myMap.geoObjects.remove(myPlacemark);
+            clasterer.remove(myPlacemark);
         }
     });
 
