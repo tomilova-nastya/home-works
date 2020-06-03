@@ -1,5 +1,6 @@
 import balloonRender from '../templates/balloon.hbs';
 import commentsRender from '../templates/comments.hbs';
+
 let myGeoObjects = [];
 
 
@@ -12,8 +13,6 @@ function mapInit() {
         });
 
         getExistingBalloons().then((allExistingBalloons) => {
-            if(allExistingBalloons.length === 0)
-                console.log('problem');
 
             clasterizator(myMap, allExistingBalloons);
 
@@ -53,13 +52,22 @@ function clasterizator(myMap, allExistingBalloons) {
         let balloonContent = getBalloonContent(allExistingBalloons, pointData);
         let balloonHTML = balloonRender(balloonContent);
 
+        if (balloonContent !== undefined) {
+            return {
+                balloonContentHeader: '',
+                balloonContentBody: balloonHTML,
+                balloonContentFooter: '',
+                clusterCaption: '<p class="balloon_address" onclick="balloonHandler()">' + balloonContent.address + '</></p>'
+            };
+        } else {
+            return {
+                balloonContentHeader: '',
+                balloonContentBody: balloonHTML,
+                balloonContentFooter: '',
+                clusterCaption: '<p class="balloon_address" onclick="balloonHandler()">EmptyAddress</p>'
+            };
+        }
 
-        return {
-            balloonContentHeader: '',
-            balloonContentBody: balloonHTML,
-            balloonContentFooter: '',
-            clusterCaption: '<p class="balloon_address" onclick="balloonHandler()">' + balloonContent.address + '</></p>'
-        };
     }
 
     /**
@@ -74,6 +82,10 @@ function clasterizator(myMap, allExistingBalloons) {
     };
 
     let points = getExistingPoints();
+
+    if (points.length === 0) {
+        return;
+    }
 
     let geoObjects = [];
 
@@ -143,7 +155,11 @@ function getExistingBalloons() {
     return new Promise((resolve) => {
         let existingBalloonContent = [];
 
-        for (let i = 0; i < localStorage.length; i++) {
+        if (localStorage.length === 1) {
+            resolve();
+        }
+
+        for (let i = 0; i < localStorage.length ; i++) {
             let coords_string = localStorage.key(i);
             let comments_string = localStorage.getItem(coords_string);
 
@@ -283,12 +299,12 @@ function getExistingReviews(coords) {
 }
 
 function getBalloonContent(allExistingBalloons, coords) {
-    for (let balloon of allExistingBalloons) {
-        let existingCoords = JSON.stringify(balloon.coords);
-        let currentCoords = JSON.stringify(coords);
+    for (let i = 0; i < allExistingBalloons.length; i++) {
+        let existingCoords = `[${allExistingBalloons[i].coords[0]},${allExistingBalloons[i].coords[1]}]`;
+        let currentCoords = `[${coords[0]},${coords[1]}]`;
 
         if (existingCoords === currentCoords) {
-            return balloon;
+            return allExistingBalloons[i];
         }
     }
 }
