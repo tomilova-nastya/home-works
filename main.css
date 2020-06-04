@@ -9,7 +9,7 @@
 
 .header_wrapper {
     position: fixed;
-    width: 351px;
+    width: 365px;
     color: white;
     background-color: #fab638;
     margin: -10px 0 0 -13px;
@@ -17,9 +17,12 @@
     font-size: 10px;
 }
 
-/*.ymaps-2-1-76-balloon__content {*/
-/*    width: 540px !important;*/
-/*}*/
+.ymaps-2-1-76-balloon__content.header{
+    position: fixed;
+    width: 100%;
+    height: 50px;
+    background-color: #fab638;
+}
 
 .ymaps-2-1-76-b-cluster-content__header{
     display: none !important;
@@ -111,7 +114,7 @@ textarea {
 .sendButton {
     width: 95px;
     height: 34px;
-    margin: -5px 0 30px 255px;
+    margin: -5px 0 45px 255px;
     font-weight: bold;
     color: white;
     background-color: #fab638;
@@ -143,4 +146,12 @@ textarea {
     width: 10px !important;
     height: 10px !important;
     margin: 17px 12px 0 0 !important;
+}
+
+.ymaps-2-1-76-b-cluster-carousel_pager_numeric{
+    border-bottom: 60px solid #fff !important;
+}
+
+.ymaps-2-1-76-b-cluster-carousel__pager{
+    position: inherit !important;
 }
