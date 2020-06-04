@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>{{htmlWebpackPlugin.options.title}}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=18e252ee-12ee-4005-b0bb-9798d476bd30&lang=ru_RU" type="text/javascript"></script>
+    <link rel="stylesheet" href="./main.css">
+    <title>{{htmlWebpackPlugin.options.title}}</title>
 </head>
 <body>
+  <div class="container">
+    {{> "./src/templates/geo-content.hbs"}}
+  </div>
 </body>
 </html>
