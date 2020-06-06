@@ -19,7 +19,7 @@ module.exports = {
         index: './src/index.js',
     },
     devServer: {
-        index: 'index.hbs',
+        index: 'index.html',
         overlay: true
     },
     output: {
@@ -53,7 +53,7 @@ module.exports = {
         // }),
         new ExtractTextPlugin('styles.css'),
         new HtmlPlugin({
-            title: 'GeoFeedback',
+            title: 'Chat',
             template: 'index.hbs'
         }),
         new CleanWebpackPlugin(['dist'])

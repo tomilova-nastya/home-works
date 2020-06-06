@@ -1,0 +1,12 @@
+<div>
+    <h1>Чат</h1>
+    <span class="caption">Количество активных участников {{ participentsCount }}</span>
+</div>
+{{#each messages}}
+    <div class="participantPhoto" style="background-image: {{ author.photoUrl }}"></div>
+    <div class="message">{{ message }}</br><span class="caption">{{ time }}</span></div>
+{{/each}}
+<div>
+    <input class="chat-form__messageInput" type="text" placeholder="Введите сообщение...">
+    <input class="chat-form__sendButton" type="button" value="Отправить">
+</div>
