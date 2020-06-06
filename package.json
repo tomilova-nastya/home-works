@@ -1,12 +1,13 @@
 {
   "name": "webpack-env",
   "version": "1.0.0",
-  "main": "index.js",
-  "author": "Arsenii Berezin",
+  "main": "add.js",
+  "author": "Tomilova Nastya",
   "scripts": {
     "build": "webpack --progress --colors",
     "watch": "webpack-dev-server --progress --colors --open",
-    "start": "npm run watch"
+    "start": "npm run watch",
+    "dev": "nodemon server.js"
   },
   "license": "MIT",
   "devDependencies": {
@@ -32,5 +33,10 @@
     "webpack": "^4.34.0",
     "webpack-cli": "^3.3.4",
     "webpack-dev-server": "^3.7.2"
+  },
+  "dependencies": {
+    "@babel/plugin-transform-runtime": "^7.10.1",
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
   }
 }

@@ -19,7 +19,7 @@ module.exports = {
         index: './src/index.js',
     },
     devServer: {
-        index: 'index.html',
+        index: 'index.hbs',
         overlay: true
     },
     output: {

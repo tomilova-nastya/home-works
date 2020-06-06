@@ -5,6 +5,10 @@
   <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
   <title>{{htmlWebpackPlugin.options.title}}</title>
 </head>
+<script src = "/socket.io/socket.io.js"></script>
+<script>
+    var socket = io();
+</script>
 <body>
   <div class="container">
     {{> "./src/templates/geo-content.hbs"}}
