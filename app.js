@@ -6,6 +6,11 @@ app.get('/', (req, res) => {
     res.sendfile(__dirname + '/dist/index.html');
 });
 
+let port = 8080;
+http.listen(port, function() {
+    console.log('listening on *:' + port);
+});
+
 //Whenever someone connects this gets executed
 io.on('connection', function(socket) {
     console.log('A user connected');
@@ -14,10 +19,6 @@ io.on('connection', function(socket) {
     socket.on('disconnect', function () {
         console.log('A user disconnected');
     });
-});
-
-http.listen(8080, function() {
-    console.log('listening on *:8080');
 });
 
 io.on('exit', function () {
