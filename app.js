@@ -1,9 +1,9 @@
 var app = require('express')();
-var http = require('http').Server(app);
+var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
-app.get('/', function(req, res) {
-    res.sendfile('index.html');
+app.get('/', (req, res) => {
+    res.sendfile(__dirname + '/dist/index.html');
 });
 
 //Whenever someone connects this gets executed
@@ -16,6 +16,14 @@ io.on('connection', function(socket) {
     });
 });
 
-http.listen(8000, function() {
-    console.log('listening on *:8000');
+http.listen(8080, function() {
+    console.log('listening on *:8080');
 });
+
+io.on('exit', function () {
+    http.close();
+});
+
+io.on('uncaughtException', function (){
+    io.on('SIGTERM', 'kill');
+})

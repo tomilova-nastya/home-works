@@ -15,12 +15,16 @@ rules.push({
 });
 
 module.exports = {
+    node: {
+        fs: 'empty'
+    },
     entry: {
         index: './src/index.js',
     },
     devServer: {
         index: 'index.html',
-        overlay: true
+        overlay: true,
+        port: 8080
     },
     output: {
         filename: '[name].[hash].js',
