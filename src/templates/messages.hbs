@@ -1,13 +1,16 @@
 <div class="messagesHeader">
     <h2>Чат</h2>
-    <span class="caption">Количество активных участников {{ activeParticipantsCount }}</span>
+    <span class="caption">Количество активных участников <span id="activeParticipantsCount"></span></span>
 </div>
 <div class="messagesWrapper">
     {{#each messages}}
-        <div class="participantPhoto" style="background-image: {{ author.photoUrl }}"></div>
-        <div class="message">{{ message }}</br><span class="caption">{{ time }}</span></div>
+        <div class="messageWrapper">
+            <div class="participantPhoto chatMessage" style="background-image: {{ photoUrl }}"></div>
+            <div class="message">{{ message }} <span class="caption">{{ time }}</span></div>
+        </div>
     {{/each}}
 </div>
 <div class="messagesBottom">
-    <input class="chat-form__messageInput input_text" type="text" placeholder="Введите сообщение..."><input class="chat-form__sendButton input_button" type="button" value="Отправить">
+    <input class="chat-form__messageInput input_text" type="text" placeholder="Введите сообщение..."><input
+        class="chat-form__sendButton input_button" type="button" value="Отправить">
 </div>

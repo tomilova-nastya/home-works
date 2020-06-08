@@ -10,7 +10,7 @@ app.get('/', (req, res) => {
 });
 
 
-let globalMessages = [];
+let messages = [];
 let participants = [];
 let activeParticipantsCount = 0;
 
@@ -18,15 +18,36 @@ io.on('connection', function(socket) {
 
     socket.on('participantLogin', (loginString) => {
         let loginData = loginString.split(';');
-        participants.push(newParticipant(loginData[0], loginData[1], '', ''));
+
+        participants.push(getNewParticipantObject(loginData[0], loginData[1], '', ''));
+
         activeParticipantsCount++;
+        io.sockets.emit('updateParticipants', { description: JSON.stringify(participants) });
+        socket.emit('updateMessages', { description: JSON.stringify(messages) });
+        io.sockets.emit('updateParticipantsCount', { description: activeParticipantsCount });
 
-        socket.emit('getParticipants', { description: JSON.stringify(participants) });
-        socket.emit('getActiveParticipantsCount', { description: `${activeParticipantsCount}` });
-    });
+        // Учитываю количество только залогинившихся пользователей
+        socket.on('disconnect', function () {
+            activeParticipantsCount--;
+            io.sockets.emit('updateParticipantsCount', { description: activeParticipantsCount });
+            io.sockets.emit('updateParticipants', { description: JSON.stringify(participants) });
+        });
 
-    socket.on('disconnect', function () {
-        //activeParticipantsCount--;
+        socket.on('sendMessage', (data) => {
+            let messageInfo = data.split("&&&");
+
+            let message = messageInfo[0];
+            let fio = messageInfo[1];
+            let currentDateTime = new Date();
+
+            let newMessage = getNewMessageObject(message, fio, currentDateTime);
+            messages.unshift(newMessage);
+
+            io.sockets.emit('updateMessages', { description: JSON.stringify(messages) });
+
+            updateParticipantLastMessage(message, fio);
+            io.sockets.emit('updateParticipants', { description: JSON.stringify(participants) });
+        });
     });
 });
 
@@ -36,11 +57,37 @@ http.listen(port, function() {
     console.log('listening on *:' + port);
 });
 
-function newParticipant(name, nickname, photoUrl, lastMessage){
+function getNewParticipantObject(name, nickname, photoUrl, lastMessage) {
     return {
         name: name,
         nickname: nickname,
         photoUrl: photoUrl,
         lastMessage: lastMessage
     };
+}
+
+function getNewMessageObject(message, fio, currentDateTime) {
+    return {
+        message: message,
+        photoUrl: getPhotoUrlByFio(fio),
+        time: `${currentDateTime.getHours()}:${currentDateTime.getMinutes()}`
+    };
+}
+
+function getPhotoUrlByFio(fio) {
+    for (let participant of participants) {
+        if (participant.name === fio) {
+            return participant.photoUrl;
+        }
+    }
+
+    return '';
+}
+
+function updateParticipantLastMessage(message, fio) {
+    for (let participant of participants) {
+        if (participant.name === fio) {
+            participant.lastMessage = message;
+        }
+    }
 }

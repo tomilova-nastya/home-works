@@ -6,6 +6,7 @@ import participantsRender from './templates/participants.hbs';
 
 
 let socket = io();
+let authorName = '';
 
 function chatInit() {
     const container = document.querySelector('.container');
@@ -13,35 +14,46 @@ function chatInit() {
 
     const nameInput = document.querySelector('.login-form__nameInput');
     const nicknameInput = document.querySelector('.login-form__nicknameInput');
-    const sendButton = document.querySelector('.login-form__sendButton');
+    const loginButton = document.querySelector('.login-form__sendButton');
 
-    sendButton.addEventListener('click', () => {
+    loginButton.addEventListener('click', () => {
         socket.emit('participantLogin', `${nameInput.value};${nicknameInput.value}`);
+        authorName = nameInput.value;
 
-        let participants = [];
-        let activeParticipantsCount = 0;
+        container.innerHTML = chatFormRender({});
 
-        socket.on('getParticipants', (response) => {
-            participants = JSON.parse(response.description);
+        socket.on('updateParticipantsCount', (data) => {
+            let countCaption = document.querySelector('#activeParticipantsCount');
+            console.log(countCaption);
 
-            socket.on('getActiveParticipantsCount', (response) => {
-                activeParticipantsCount = Number(response.description);
+            if (countCaption !== undefined) {
+                countCaption.innerHTML = data.description;
+            }
+        });
 
-                container.innerHTML = chatFormRender({});
+        socket.on('updateParticipants', (response) => {
+            let participants = JSON.parse(response.description);
 
-                let participantsBlock = document.querySelector('.participants-block__wrapper');
-                let messagesBlock = document.querySelector('.messages-block__wrapper');
+            let participantsBlock = document.querySelector('.participants-block__wrapper');
+            participantsBlock.innerHTML = participantsRender({ participants: participants });
+        });
 
-                // console.log(participants[0].name);
-                // console.log(participants[0].photoUrl);
-                // console.log(participants[0].lastMessage);
+        socket.on('updateMessages', (response) => {
+            let messages = JSON.parse(response.description);
 
-                participantsBlock.innerHTML = participantsRender({ participants: participants });
-                messagesBlock.innerHTML = messagesRender({ activeParticipantsCount: activeParticipantsCount, messages: [] });
-            });
+            let messagesBlock = document.querySelector('.messages-block__wrapper');
+            messagesBlock.innerHTML = messagesRender({ messages: messages });
+
+
+            let sendMessageButton = document.querySelector('.chat-form__sendButton');
+            let messageInput = document.querySelector('.chat-form__messageInput');
+
+            sendMessageButton.addEventListener('click', () => {
+                socket.emit('sendMessage', `${messageInput.value}&&&${authorName}`);
+                messageInput.value = '';
+            })
         });
     });
 }
-
 
 chatInit();
