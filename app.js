@@ -48,6 +48,7 @@ io.on('connection', function(socket) {
 
             updateParticipantLastMessage(message, fio);
             io.sockets.emit('updateParticipants', { description: JSON.stringify(participants) });
+            io.sockets.emit('updateParticipantsCount', { description: activeParticipantsCount });
         });
 
         socket.on('writeFile', (data) => {
