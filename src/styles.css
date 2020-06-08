@@ -1,0 +1,136 @@
+html {
+    font-family: sans-serif;
+}
+
+p {
+    width: 222px;
+    display: inline-block;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.caption {
+    font-size: 13px;
+    color: #bbbbbb;
+}
+
+.input_text {
+    width: 200px;
+    height: 24px;
+    margin-bottom: 20px;
+    padding-left: 7px;
+}
+
+.input_button {
+    width: 90px;
+    height: 28px;
+}
+
+.login-form__wrapper,.upload-form__wrapper {
+    text-align: center;
+}
+
+
+.chat-form__wrapper {
+    display: flex;
+}
+
+.participants-block__wrapper {
+    display: block;
+    width: 300px;
+    margin-top: 100px;
+    height: 401px;
+    border: 1px #3b3b3b solid;
+    border-right: none;
+    padding: 20px 0 0 0;
+}
+
+.messages-block__wrapper {
+    display: inline-block;
+    width: 600px;
+    height: 100%;
+}
+
+.messagesWrapper {
+    width: 598px;
+    height: 380px;
+    border: 1px #3b3b3b solid;
+    border-radius: 3px;
+    background-color: rgba(236, 211, 67, 0.03);
+    padding: 20px 0 0 0;
+    font-size: 14px;
+}
+
+.messagesHeader {
+    height: 80px;
+}
+
+h2{
+    margin: 20px 0 5px 0;
+}
+
+.messagesBottom{
+    margin: -7px 0 0 0;
+}
+
+.chat-form__messageInput.input_text {
+    width: 500px;
+    border: 1px #333333 solid;
+    border-right: none;
+}
+
+.participant{
+    display: block;
+    height: 40px;
+}
+
+.participantPhoto{
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 1px #333333 solid;
+    border-radius: 20px;
+    margin: 0 0 0 25px;
+}
+.participantInfo{
+    display: inline-block;
+    position: absolute;
+    margin: 2px 10px 0 13px;
+    height: 40px;
+    font-size: 14px;
+}
+
+.participantPhoto.chatMessage {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+}
+
+.message{
+    display: inline-block;
+    width: 480px;
+    position: absolute;
+    margin-left: 4px;
+}
+
+.messageWrapper{
+    margin-bottom: 10px;
+}
+
+.upload-form__uploadOutput{
+    display: inline-block;
+    width: 220px;
+    height: 220px;
+    border-radius: 110px;
+    border: 1px #333333 solid;
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.fileMulti{
+    display: none;
+}
+
+.upload-form__uploadButton {
+    width: 140px;
+}
