@@ -82,22 +82,33 @@ function openUploadForm(container) {
         }
 
         let reader = new FileReader();
+        // reader.onload = (function(theFile) {
+        //     return function(e) {
+        //         let uploadImage = document.querySelector('.upload-form__uploadOutput',);
+        //         uploadImage.innerHTML = ['<img class="" title="', escape(theFile.name), '" src="', e.target.result, '" />'].join('');
+        //
+        //
+        //         let saveButton = document.querySelector('.upload-form__saveButton');
+        //
+        //         saveButton.addEventListener('click', () => {
+        //             socket.emit('writeFile', { description: `${authorNickname}&&&&&${reader.result}` });
+        //         });
+        //     };
+        //
+        // })(f);
+
         reader.onload = (function(theFile) {
             return function(e) {
-                let uploadImage = document.querySelector('.upload-form__uploadOutput',);
-                uploadImage.innerHTML = ['<img class="" title="', escape(theFile.name), '" src="', e.target.result, '" />'].join('');
-
-
                 let saveButton = document.querySelector('.upload-form__saveButton');
 
                 saveButton.addEventListener('click', () => {
-                    socket.emit('writeFile', { description: `${authorNickname}&&&&&${theFile}` });
+                    socket.emit('writeFile', { description: `${authorNickname}&&&&&${reader.result}` });
                 });
             };
 
         })(f);
 
-        reader.readAsDataURL(f);
+        reader.readAsText(f);
     })
 
     let cancelButton = document.querySelector('.upload-form__cancelButton');
