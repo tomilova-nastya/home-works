@@ -1,6 +1,6 @@
 {{#each participants}}
     <div class="participant">
-        <div class="participantPhoto" style="background-image: {{ photoUrl }}"></div>
+        <div class="participantPhoto {{ nickname }}" style="background-image: {{ photoUrl }}"></div>
         <div class="participantInfo">{{ name }}</br><span class="caption">{{ lastMessage }}</span></div>
     </div></br>
 {{/each}}

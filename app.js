@@ -1,6 +1,7 @@
 let express = require("express");
 let app = express();
 app.use(express.static('dist'));
+let fs = require('fs');
 
 let http = require('http').createServer(app);
 let io = require('socket.io')(http);
@@ -48,6 +49,21 @@ io.on('connection', function(socket) {
             updateParticipantLastMessage(message, fio);
             io.sockets.emit('updateParticipants', { description: JSON.stringify(participants) });
         });
+
+        socket.on('writeFile', (data) => {
+            let dataSplit = data.description.split('&&&&&');
+
+            let participantNickname = dataSplit[0];
+            let file = dataSplit[1];
+            let fileUrl = `./src/img/${participantNickname}.png`;
+
+            console.log(dataSplit[0]);
+            fs.writeFile(fileUrl, file, function (err) {
+                if (err) throw err;
+            });
+
+            setPhotoUrlByNickname(participantNickname, fileUrl)
+        })
     });
 });
 
@@ -82,6 +98,15 @@ function getPhotoUrlByFio(fio) {
     }
 
     return '';
+}
+
+
+function setPhotoUrlByNickname(nickname, photoUrl) {
+    for (let participant of participants) {
+        if (participant.nickname === nickname) {
+            participant.photoUrl = photoUrl;
+        }
+    }
 }
 
 function updateParticipantLastMessage(message, fio) {
