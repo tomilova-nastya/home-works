@@ -25,8 +25,8 @@ function mapInit() {
                             commentsNode.innerHTML = commentsRender({comments: comments});
 
                             // подтягиваю адрес для текущего элемента
-                            let currentItemSwitcher = document.querySelector('.ymaps-2-1-76-b-cluster-carousel__pager-item_current_yes');
-                            currentItemSwitcher.innerHTML = address;
+                            // let currentItemSwitcher = document.querySelector('.ymaps-2-1-78-b-cluster-carousel__pager-item_current_yes');
+                            // currentItemSwitcher.innerHTML = address;
 
                             let sendButton = document.querySelector('.sendButton');
                             sendButton.addEventListener('click', this.onSendClick)
@@ -50,7 +50,7 @@ function mapInit() {
 
                             addOrUpdateReview(coords, newReview, address);
 
-                            let closeButton = document.querySelector('.ymaps-2-1-76-balloon__close-button');
+                            let closeButton = document.querySelector('.ymaps-2-1-78-balloon__close-button');
                             closeButton.click();
                         }
                     });

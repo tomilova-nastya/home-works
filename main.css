@@ -9,12 +9,21 @@
 
 .header_wrapper {
     position: fixed;
-    width: 365px;
+    width: 353px;
     color: white;
     background-color: #fab638;
     margin: -10px 0 0 -13px;
     padding: 15px 30px;
     font-size: 10px;
+}
+
+.ymaps-2-1-78-b-cluster-carousel__content .header_wrapper {
+    width: 409px;
+    margin-left: -42px;
+}
+
+.ymaps-2-1-78-balloon__content{
+    margin: 0 !important;
 }
 
 .ymaps-2-1-76-balloon__content.header{
@@ -39,11 +48,6 @@
 
 strong{
     font-weight: 300 !important;
-}
-
-.ymaps-2-1-76-b-cluster-tabs__menu-item_current_yes{
-    background: transparent !important;
-    text-underline-style: dash;
 }
 
 .ymaps-2-1-76-b-cluster-tabs__section{
